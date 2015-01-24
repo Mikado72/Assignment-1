@@ -5,10 +5,13 @@
  */
 package Interface;
 
+import Data.WeatherYear;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,6 +21,15 @@ public class WeatherGUI extends javax.swing.JFrame {
     private Scanner inputFile;
     private String Year, Month, MaxT, MinT, AirF, Rain, Sun, space;
     private DefaultListModel weatherList;
+    private ArrayList<String> years = new ArrayList();
+    private int weatherYear;
+    private String[] weatherYearMaxTemp = new String[12];
+    private String[] weatherYearMinTemp = new String[12];
+    private String[] weatherYearAirfrost = new String[12];
+    private String[] weatherYearRainfall = new String[12];
+    private String[] weatherYearSunhours = new String[12];
+    String weatherYearMaxTempsStats = "", weatherYearMinTempStats = "", weatherYearAirfrostStats = "", weatherYearRainfallStats = "", weatherYearSunhoursStats= "";
+    public WeatherYear w;
     /**
      * Creates new form WeatherGUI
      */
@@ -34,7 +46,7 @@ public class WeatherGUI extends javax.swing.JFrame {
         } // end catch
     } // end method openFile
     public void printRecords() {
-        space = "                      ";
+        space = "          :            ";
         try // read records from file using Scanner object
         {
             weatherList.addElement("Year           Month            Max Temp            Min Temp            Air Frost            Rainfall            Sun Hours            ");
@@ -46,7 +58,37 @@ public class WeatherGUI extends javax.swing.JFrame {
                 AirF = inputFile.next();
                 Rain = inputFile.next();
                 Sun = inputFile.next();
-                weatherList.addElement(Year + "           " + Month + space + MaxT + space + MinT + space + AirF + space + Rain + space + Sun + " ");
+                if(!years.contains(Year)){
+                    jComboBox1.addItem(Year);
+                    years.add(Year);
+                }
+                
+                weatherList.addElement(Year + "     :      " + Month + space + MaxT + space + MinT + space + AirF + space + Rain + space + Sun + " ");
+            } // end while
+        } // end try
+        catch (IllegalStateException stateException) {
+            System.err.println(stateException);
+            System.exit(1);
+        } // end catch
+    } // end method readRecords
+    
+    public void printRecords(int year) {
+        space = "          :            ";
+        weatherList.clear();
+        try // read records from file using Scanner object
+        {
+            weatherList.addElement("Year           Month            Max Temp            Min Temp            Air Frost            Rainfall            Sun Hours            ");
+            while (inputFile.hasNext()) {
+                Year = inputFile.next();
+                Month = getMonthText(Integer.valueOf(inputFile.next()));
+                MaxT = inputFile.next();
+                MinT = inputFile.next();
+                AirF = inputFile.next();
+                Rain = inputFile.next();
+                Sun = inputFile.next();
+                if(Integer.valueOf(Year)==year){
+                    weatherList.addElement(Year + "     :      " + Month + space + MaxT + space + MinT + space + AirF + space + Rain + space + Sun + " ");
+                }
             } // end while
         } // end try
         catch (IllegalStateException stateException) {
@@ -189,13 +231,28 @@ public class WeatherGUI extends javax.swing.JFrame {
         jList1.setModel(weatherList = new DefaultListModel());
         jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jList1.setToolTipText("");
+        jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jList1MouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(jList1);
 
         jLabel1.setText("Year");
 
         jButton1.setText("Filter");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
 
         jButton2.setText("Exit");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -272,7 +329,6 @@ public class WeatherGUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -351,13 +407,89 @@ public class WeatherGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-   
-    
-    
     private void OpenFileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_OpenFileMouseClicked
         openFile();
         printRecords();
     }//GEN-LAST:event_OpenFileMouseClicked
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        String[] monthStatsArray = new String[7];
+        openFile();
+        System.out.println(jComboBox1.getSelectedItem().toString());
+        if(!jComboBox1.getSelectedItem().toString().isEmpty()){
+            printRecords(Integer.valueOf(jComboBox1.getSelectedItem().toString()));
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Please select a year to filter");
+        }
+        String monthStats;
+        for(int i = 0; i < 12; i++){
+            monthStats = weatherList.getElementAt(i+1).toString();
+            monthStats = monthStats.replaceAll(" ", "");
+            monthStatsArray = monthStats.split(":");
+            weatherYear = Integer.valueOf(monthStatsArray[0]);
+            weatherYearMaxTemp[i] = monthStatsArray[2];
+            weatherYearMinTemp[i] = monthStatsArray[3];
+            weatherYearAirfrost[i] = monthStatsArray[4];
+            weatherYearRainfall[i] = monthStatsArray[5];
+            weatherYearSunhours[i] = monthStatsArray[6];
+        }
+        for(int i = 0; i < 12; i++){
+            if(i==0){
+                weatherYearMaxTempsStats = weatherYearMaxTempsStats + weatherYearMaxTemp[i];
+                weatherYearMinTempStats = weatherYearMinTempStats + weatherYearMinTemp[i];
+                weatherYearAirfrostStats = weatherYearAirfrostStats + weatherYearAirfrost[i];
+                weatherYearRainfallStats = weatherYearRainfallStats + weatherYearRainfall[i];
+                weatherYearSunhoursStats = weatherYearSunhoursStats + weatherYearSunhours[i];
+            } else {
+                weatherYearMaxTempsStats = weatherYearMaxTempsStats + ":" + weatherYearMaxTemp[i];
+                weatherYearMinTempStats = weatherYearMinTempStats + ":" + weatherYearMinTemp[i];
+                weatherYearAirfrostStats = weatherYearAirfrostStats + ":" + weatherYearAirfrost[i];
+                weatherYearRainfallStats = weatherYearRainfallStats + ":" + weatherYearRainfall[i];
+                weatherYearSunhoursStats = weatherYearSunhoursStats + ":" + weatherYearSunhours[i];
+            }
+        }
+        System.out.println(weatherYearMaxTempsStats);
+        w = new WeatherYear(weatherYear, weatherYearMaxTempsStats, weatherYearMinTempStats, weatherYearAirfrostStats, weatherYearRainfallStats, weatherYearSunhoursStats);
+        System.out.println(w.getMaxTemp());
+//        for(int i = 0; i < 12; i++){
+//            monthStats[0] = weatherList.getElementAt(i).toString();
+//            weatherYearMaxTemp[i] = ;
+//        }
+        weatherYearMaxTempsStats = "";
+        weatherYearMinTempStats = "";
+        weatherYearAirfrostStats = "";
+        weatherYearRainfallStats = "";
+        weatherYearSunhoursStats = "";
+        
+        //Set GUI boxes
+        jTextField1.setText(String.valueOf(w.getMaxTemp()));
+        jTextField2.setText(String.valueOf(w.getAvgTemp()));
+        jTextField3.setText(String.valueOf(w.getMinTemp()));
+        
+        jTextField4.setText(String.valueOf(w.getMaxAirforst()));
+        jTextField5.setText(String.valueOf(w.getAvgAirfost()));
+        jTextField6.setText(String.valueOf(w.getMinAirforst()));
+        
+        jTextField7.setText(String.valueOf(w.getMaxRainfall()));
+        jTextField8.setText(String.valueOf(w.getAvgRainfall()));
+        jTextField9.setText(String.valueOf(w.getMinRainfall()));
+        
+        jTextField10.setText(String.valueOf(w.getMaxSunhours()));
+        jTextField11.setText(String.valueOf(w.getAvgSunhours()));
+        jTextField12.setText(String.valueOf(w.getMinSunhours()));
+    }//GEN-LAST:event_jButton1MouseClicked
+
+    private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
+        if(!jList1.isSelectionEmpty()){
+            System.out.println(weatherList.getElementAt(jList1.getSelectedIndex()).toString().replace(" ", ""));
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Please select a valid month");
+        }
+    }//GEN-LAST:event_jList1MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        System.exit(0);
+    }//GEN-LAST:event_jButton2MouseClicked
 
     /**
      * @param args the command line arguments
