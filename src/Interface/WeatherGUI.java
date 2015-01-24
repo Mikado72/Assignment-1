@@ -248,6 +248,11 @@ public class WeatherGUI extends javax.swing.JFrame {
         });
 
         jButton2.setText("Exit");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -481,6 +486,10 @@ public class WeatherGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Please select a valid month");
         }
     }//GEN-LAST:event_jList1MouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        System.exit(0);
+    }//GEN-LAST:event_jButton2MouseClicked
 
     /**
      * @param args the command line arguments
